@@ -22,6 +22,17 @@ export interface CreateIssueParams {
   assignee?: string;
 }
 
+export interface UpdateIssueParams {
+  issueId: string;
+  title?: string;
+  description?: string;
+  priority?: 'urgent' | 'high' | 'medium' | 'low';
+  labels?: string[];
+  status?: string;
+  project?: string;
+  assignee?: string;
+}
+
 export interface ListIssuesParams {
   status?: string;
   limit?: number;
@@ -128,6 +139,8 @@ export async function createIssue(params: CreateIssueParams) {
     const stateId = await findStateByName(teamId, params.status);
     if (stateId) {
       issueData.stateId = stateId;
+    } else {
+      throw new Error(`Status "${params.status}" not found in team`);
     }
   }
 
@@ -135,6 +148,8 @@ export async function createIssue(params: CreateIssueParams) {
     const projectId = await findProjectByName(params.project);
     if (projectId) {
       issueData.projectId = projectId;
+    } else {
+      throw new Error(`Project "${params.project}" not found`);
     }
   }
 
@@ -142,6 +157,8 @@ export async function createIssue(params: CreateIssueParams) {
     const userId = await findUserByUsername(params.assignee);
     if (userId) {
       issueData.assigneeId = userId;
+    } else {
+      throw new Error(`Assignee "${params.assignee}" not found`);
     }
   }
 
@@ -157,6 +174,71 @@ export async function createIssue(params: CreateIssueParams) {
 
   if (!issue) {
     throw new Error('Failed to create issue');
+  }
+
+  return {
+    id: issue.id,
+    identifier: issue.identifier,
+    title: issue.title,
+    url: issue.url,
+    state: issue.state ? await issue.state.then(s => s?.name) : undefined,
+  };
+}
+
+export async function updateIssue(params: UpdateIssueParams) {
+  const updateData: any = {};
+
+  if (params.title) {
+    updateData.title = params.title;
+  }
+
+  if (params.description) {
+    updateData.description = params.description;
+  }
+
+  if (params.priority) {
+    updateData.priority = priorityMap[params.priority];
+  }
+
+  if (params.status && teamId) {
+    const stateId = await findStateByName(teamId, params.status);
+    if (stateId) {
+      updateData.stateId = stateId;
+    } else {
+      throw new Error(`Status "${params.status}" not found in team`);
+    }
+  }
+
+  if (params.project) {
+    const projectId = await findProjectByName(params.project);
+    if (projectId) {
+      updateData.projectId = projectId;
+    } else {
+      throw new Error(`Project "${params.project}" not found`);
+    }
+  }
+
+  if (params.assignee) {
+    const userId = await findUserByUsername(params.assignee);
+    if (userId) {
+      updateData.assigneeId = userId;
+    } else {
+      throw new Error(`Assignee "${params.assignee}" not found`);
+    }
+  }
+
+  if (params.labels && params.labels.length > 0 && teamId) {
+    const labelIds = await findLabelsByNames(teamId, params.labels);
+    if (labelIds.length > 0) {
+      updateData.labelIds = labelIds;
+    }
+  }
+
+  const issuePayload = await client.updateIssue(params.issueId, updateData);
+  const issue = await issuePayload.issue;
+
+  if (!issue) {
+    throw new Error('Failed to update issue');
   }
 
   return {

@@ -9,6 +9,7 @@
     "linear": "tsx -r dotenv/config cli.ts",
     "linear:teams": "tsx -r dotenv/config cli.ts teams",
     "linear:create": "tsx -r dotenv/config cli.ts create",
+    "linear:update": "tsx -r dotenv/config cli.ts update",
     "linear:list": "tsx -r dotenv/config cli.ts list",
     "linear:get": "tsx -r dotenv/config cli.ts get",
     "linear:delete": "tsx -r dotenv/config cli.ts delete"

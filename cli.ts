@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { createIssue, listIssues, getIssue, listTeams, deleteIssue } from './linear.js';
+import { createIssue, listIssues, getIssue, listTeams, deleteIssue, updateIssue } from './linear.js';
 
 const program = new Command();
 
@@ -54,6 +54,45 @@ program
       const issue = await createIssue(params);
 
       console.log('\n✓ Issue created successfully!\n');
+      console.log(`  ID: ${issue.identifier}`);
+      console.log(`  Title: ${issue.title}`);
+      console.log(`  URL: ${issue.url}`);
+      if (issue.state) console.log(`  State: ${issue.state}`);
+      console.log('');
+    } catch (error: any) {
+      console.error('Error:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('update')
+  .description('Update an existing Linear issue')
+  .argument('<issueId>', 'Issue ID or identifier (e.g., POS-250)')
+  .option('--title <title>', 'New issue title')
+  .option('--description <description>', 'New issue description')
+  .option('--priority <priority>', 'Priority: urgent, high, medium, low')
+  .option('--status <status>', 'Status/State name (e.g., Todo, In Progress)')
+  .option('--project <project>', 'Project name or ID')
+  .option('--assignee <assignee>', 'Assignee username/email')
+  .option('--tag <tags...>', 'Tags/Labels (can be used multiple times)')
+  .action(async (issueId, options) => {
+    try {
+      const params: any = {
+        issueId: issueId,
+      };
+
+      if (options.title) params.title = options.title;
+      if (options.description) params.description = options.description;
+      if (options.priority) params.priority = options.priority;
+      if (options.status) params.status = options.status;
+      if (options.project) params.project = options.project;
+      if (options.assignee) params.assignee = options.assignee;
+      if (options.tag) params.labels = options.tag;
+
+      const issue = await updateIssue(params);
+
+      console.log('\n✓ Issue updated successfully!\n');
       console.log(`  ID: ${issue.identifier}`);
       console.log(`  Title: ${issue.title}`);
       console.log(`  URL: ${issue.url}`);
