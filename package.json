@@ -28,12 +28,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/angelodias/linear-api-cli.git"
+    "url": "https://github.com/angelod1as/linear-api-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/angelodias/linear-api-cli/issues"
+    "url": "https://github.com/angelod1as/linear-api-cli/issues"
   },
-  "homepage": "https://github.com/angelodias/linear-api-cli#readme",
+  "homepage": "https://github.com/angelod1as/linear-api-cli#readme",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "@linear/sdk": "^62.0.0",

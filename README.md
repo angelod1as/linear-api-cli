@@ -1,8 +1,8 @@
 # Linear API CLI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Issues](https://img.shields.io/github/issues/angelodias/linear-api-cli.svg)](https://github.com/angelodias/linear-api-cli/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/angelodias/linear-api-cli/blob/main/CONTRIBUTING.md)
+[![GitHub Issues](https://img.shields.io/github/issues/angelod1as/linear-api-cli.svg)](https://github.com/angelod1as/linear-api-cli/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/angelod1as/linear-api-cli/blob/main/CONTRIBUTING.md)
 
 A simple, **non-interactive** Linear CLI designed to be easily consumable by LLMs (Language Model Agents). All commands use flags - no prompts, perfect for programmatic task creation and management.
 
@@ -41,7 +41,7 @@ Perfect for AI agents, automation scripts, CI/CD pipelines, and webhook integrat
 
 ```bash
 # Clone the repository
-git clone https://github.com/angelodias/linear-api-cli.git
+git clone https://github.com/angelod1as/linear-api-cli.git
 cd linear-api-cli
 
 # Install dependencies
@@ -238,8 +238,8 @@ Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for g
 
 ## Support
 
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/angelodias/linear-api-cli/issues)
-- **Discussions**: Ask questions or share ideas in [GitHub Discussions](https://github.com/angelodias/linear-api-cli/discussions)
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/angelod1as/linear-api-cli/issues)
+- **Discussions**: Ask questions or share ideas in [GitHub Discussions](https://github.com/angelod1as/linear-api-cli/discussions)
 
 ## License
 

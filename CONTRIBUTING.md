@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This project aims to provide a simp
 
 ### Reporting Bugs
 
-If you find a bug, please [open an issue](https://github.com/angelodias/linear-api-cli/issues) with:
+If you find a bug, please [open an issue](https://github.com/angelod1as/linear-api-cli/issues) with:
 
 - A clear, descriptive title
 - Steps to reproduce the issue
@@ -16,7 +16,7 @@ If you find a bug, please [open an issue](https://github.com/angelodias/linear-a
 
 ### Suggesting Features
 
-Feature suggestions are welcome! Please [open an issue](https://github.com/angelodias/linear-api-cli/issues) with:
+Feature suggestions are welcome! Please [open an issue](https://github.com/angelod1as/linear-api-cli/issues) with:
 
 - A clear description of the feature
 - The problem it solves or use case it enables
@@ -27,7 +27,7 @@ Feature suggestions are welcome! Please [open an issue](https://github.com/angel
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/linear-api-cli.git
+   git clone https://github.com/angelod1as/linear-api-cli.git
    cd linear-api-cli
    ```
 
@@ -121,7 +121,7 @@ When contributing, please keep these principles in mind:
 
 If you have questions about contributing, feel free to:
 
-- [Open an issue](https://github.com/angelodias/linear-api-cli/issues) with the "question" label
+- [Open an issue](https://github.com/angelod1as/linear-api-cli/issues) with the "question" label
 - Check existing issues and discussions
 
 ## License
