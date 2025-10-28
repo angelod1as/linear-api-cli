@@ -1,251 +1,203 @@
-# Linear API - CLI Usage Guide
+# Linear API - Usage Guide
 
-This is a simple, **non-interactive** CLI for Linear's API. All commands accept flags - no prompts, perfect for LLM usage.
+This guide covers both **CLI** and **MCP** usage for managing Linear issues programmatically.
 
 ## Setup
 
-### 1. Get Your Linear Personal API Key
+### 1. Get Your Linear API Key
 
-1. Go to Linear: https://linear.app/settings/api
+1. Go to [Linear Settings → API](https://linear.app/settings/api)
 2. Click **Create Personal API Key**
 3. Copy the key (shown only once)
 
-### 2. Configure Environment
-
-```bash
-# Copy the template
-cp .env.example .env
-
-# Edit .env and add your API key
-LINEAR_API_KEY=lin_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-### 3. Get Your Team ID
+### 2. Get Your Team ID
 
 ```bash
 pnpm linear:teams
 ```
 
-Copy the team ID and add it to `.env`:
+### 3. Configure Environment
+
+In each project that needs Linear access, create a `.env` file:
+
+```bash
+cp .env.example .env
 ```
+
+Edit `.env`:
+```
+LINEAR_API_KEY=lin_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 LINEAR_TEAM_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-## Commands
+---
 
-All commands are run with `pnpm` from the `linear-api` directory.
+## MCP Usage (Claude Code)
 
-### Test Suite
-
-Verify your setup is working correctly:
+### Setup (One Time Only)
 
 ```bash
-pnpm test
+claude mcp add --scope user --transport stdio linear -- /absolute/path/to/linear-api/start-mcp-server.sh
 ```
 
-**What it does:**
-- Checks API key and team ID are configured
-- Tests creating issues
-- Tests listing issues
-- Tests getting issue details
-- Tests filtering and options
+Replace `/absolute/path/to/linear-api/` with the actual path to this directory.
 
-**Note:** Creates actual test issues in Linear (marked with `[TEST]`). Delete them manually after testing.
+### How It Works
+
+The MCP server automatically loads credentials from your project's `.env` file. Different projects can have different Linear teams.
+
+### Available MCP Tools
+
+| Tool | Purpose | Required | Optional |
+|------|---------|----------|----------|
+| `linear_list_teams` | List teams | - | - |
+| `linear_create_issue` | Create issue | `title` | `description`, `priority`, `status`, `project`, `assignee`, `labels` |
+| `linear_update_issue` | Update issue | `issueId` | `title`, `description`, `priority`, `status`, `project`, `assignee`, `labels` |
+| `linear_list_issues` | List issues | - | `status`, `limit`, `assigneeId` |
+| `linear_get_issue` | Get issue details | `issueId` | - |
+| `linear_delete_issue` | Delete issue | `issueId` | - |
+
+### Example MCP Usage
+
+```
+You: "Create a Linear issue titled 'Add dark mode' with high priority"
+Claude: [Uses linear_create_issue tool automatically]
+
+You: "List all issues in Todo status"
+Claude: [Uses linear_list_issues with status="Todo"]
+
+You: "Update POS-123 to In Progress"
+Claude: [Uses linear_update_issue]
+```
+
+### Managing MCP
+
+```bash
+# List configured servers
+claude mcp list
+
+# Check Linear server status
+claude mcp get linear
+
+# Remove Linear server
+claude mcp remove linear -s user
+```
 
 ---
 
-### List Teams
+## CLI Usage
 
-Shows all teams you have access to. Use this to find your team ID.
-
-```bash
-pnpm linear:teams
-```
-
-**Output:**
-```
-Available teams:
-================
-
-Positiv Website (POS)
-  ID: 20a312f9-eb0b-42c0-b61d-6212ca72d7ef
-```
-
----
+All commands run from the `linear-api` directory.
 
 ### Create Issue
 
-Create a new Linear issue with optional metadata.
-
-**Basic usage:**
 ```bash
-pnpm linear:create --title "Issue title"
-```
+# Basic
+pnpm linear:create --title "Fix login bug"
 
-**With all options:**
-```bash
+# With options
 pnpm linear:create \
   --title "Fix authentication bug" \
   --description "Users cannot login after password reset" \
   --priority high \
   --status "Todo" \
-  --project "listmonk-newsletter-integration-76f8a7b887c7" \
-  --assignee "oiangelodias" \
-  --tag Admin \
-  --tag Feature
+  --assignee "username" \
+  --tag Bug
 ```
 
 **Options:**
-- `--title` (required): Issue title
-- `--description`: Issue description in markdown
-- `--priority`: One of: `urgent`, `high`, `medium`, `low`
-- `--status`: Status/State name (e.g., `"Todo"`, `"In Progress"`, `"Done"`)
-- `--project`: Project name or ID
-- `--assignee`: Username, email, or display name
-- `--tag`: Tag/Label name (can be used multiple times)
+- `--title` (required) - Issue title
+- `--description` - Markdown description
+- `--priority` - `urgent`, `high`, `medium`, `low`
+- `--status` - State name (e.g., "Todo", "In Progress")
+- `--project` - Project name or ID
+- `--assignee` - Username, email, or display name
+- `--tag` - Label (can use multiple times)
 
-**Output:**
-```
-✓ Issue created successfully!
+### Update Issue
 
-  ID: POS-123
-  Title: Fix authentication bug
-  URL: https://linear.app/positiv/issue/POS-123
-  State: Todo
+```bash
+pnpm linear:update POS-123 --status "Done" --assignee "username"
 ```
 
----
+Uses same options as create (all optional except issue ID).
 
 ### List Issues
 
-List issues from your configured team with optional filters.
-
-**Basic usage:**
 ```bash
+# All issues
 pnpm linear:list
-```
 
-**With filters:**
-```bash
 # Filter by status
 pnpm linear:list --status "In Progress"
 
 # Limit results
 pnpm linear:list --limit 10
-
-# Filter by assignee ID
-pnpm linear:list --assignee "user-uuid-here"
 ```
-
-**Options:**
-- `--status`: Filter by status/state name
-- `--limit`: Maximum number of issues to return (default: 50)
-- `--assignee`: Filter by assignee ID
-
-**Output:**
-```
-Found 3 issue(s):
-
-[POS-123] Fix authentication bug
-  State: In Progress
-  Assignee: Angelo Dias
-  URL: https://linear.app/positiv/issue/POS-123
-
-[POS-124] Add dark mode
-  State: Todo
-  URL: https://linear.app/positiv/issue/POS-124
-```
-
----
 
 ### Get Issue
-
-Get detailed information about a specific issue.
 
 ```bash
 pnpm linear:get POS-123
 ```
 
-**Output:**
-```
-[POS-123] Fix authentication bug
-
-Description: Users cannot login after password reset
-State: In Progress
-Priority: 2
-Assignee: Angelo Dias (angelo@example.com)
-URL: https://linear.app/positiv/issue/POS-123
-```
-
----
-
 ### Delete Issue
-
-Delete a Linear issue permanently.
 
 ```bash
 pnpm linear:delete POS-123
 ```
 
-**Output:**
-```
-✓ Issue POS-123 deleted successfully!
-```
+**Warning:** Permanent deletion, cannot be undone.
 
-**Warning:** This action is permanent and cannot be undone.
+### List Teams
+
+```bash
+pnpm linear:teams
+```
 
 ---
 
-## Complete Examples
+## Examples
 
-### Example 1: Create a high-priority bug
+### Create High-Priority Bug
 
 ```bash
 pnpm linear:create \
-  --title "Login page crashes on mobile" \
-  --description "The login page throws an error on iOS Safari" \
+  --title "Login crashes on mobile" \
+  --description "Error on iOS Safari" \
   --priority urgent \
   --status "Todo" \
   --tag Bug \
-  --assignee "oiangelodias"
+  --assignee "dev@example.com"
 ```
 
-### Example 2: Create a feature request with project
+### Create Feature Request
 
 ```bash
 pnpm linear:create \
-  --title "Add newsletter subscription form" \
-  --description "Integrate Listmonk newsletter signup" \
+  --title "Add newsletter signup" \
   --priority medium \
-  --status "Backlog" \
-  --project "listmonk-newsletter-integration-76f8a7b887c7" \
-  --tag Feature \
-  --tag Frontend
+  --project "newsletter-integration" \
+  --tag Feature
 ```
 
-### Example 3: List all "In Progress" issues
+### List In-Progress Issues
 
 ```bash
 pnpm linear:list --status "In Progress"
-```
-
-### Example 4: Get details of a specific issue
-
-```bash
-pnpm linear:get POS-123
 ```
 
 ---
 
 ## Priority Values
 
-When creating issues, use these values for `--priority`:
-- `urgent` - Highest priority
-- `high` - High priority
-- `medium` - Medium priority (default)
-- `low` - Low priority
+**When creating:**
+- `urgent` - Highest
+- `high` - High
+- `medium` - Medium (default)
+- `low` - Low
 
-When viewing issues, priority is shown as a number:
+**When viewing:**
 - `1` = Urgent
 - `2` = High
 - `3` = Medium
@@ -253,59 +205,52 @@ When viewing issues, priority is shown as a number:
 
 ---
 
-## Finding Status Names
+## Finding Values
 
-Status names are team-specific. Common statuses include:
-- `Backlog`
-- `Todo`
-- `In Progress`
-- `Done`
-- `Canceled`
+**Status Names:** Team-specific. Common values: `Backlog`, `Todo`, `In Progress`, `Done`, `Canceled`
 
-Use `pnpm linear:list` to see what statuses exist in your team.
+**Projects:** Use project ID from URL or partial name match (case-insensitive)
+
+**Assignees:** Can use username, email, or display name (fuzzy matched)
 
 ---
 
-## Finding Project Names
+## Troubleshooting
 
-Projects can be specified by name or ID. If using a project ID (like from a URL), you can paste it directly:
-
-```bash
---project "listmonk-newsletter-integration-76f8a7b887c7"
+**Missing API key:**
 ```
-
-Or use part of the project name:
-
-```bash
---project "newsletter"
-```
-
----
-
-## Error Handling
-
-If a command fails, you'll see an error message:
-
-```bash
 Error: LINEAR_API_KEY is not set in .env file
 ```
+→ Add `LINEAR_API_KEY` to `.env`
 
-Common errors:
-- **Missing API key**: Add `LINEAR_API_KEY` to `.env`
-- **Missing team ID**: Add `LINEAR_TEAM_ID` to `.env` (run `pnpm linear:teams` to find it)
-- **Issue not found**: Check the issue identifier
-- **Invalid priority**: Use `urgent`, `high`, `medium`, or `low`
+**Missing team ID:**
+```
+Error: LINEAR_TEAM_ID is not set in .env file
+```
+→ Run `pnpm linear:teams` and add `LINEAR_TEAM_ID` to `.env`
+
+**MCP not connecting:**
+```bash
+claude mcp list
+# Shows: linear: ... - ✗ Failed to connect
+```
+→ Check the path in your MCP configuration is correct
+→ Ensure `.env` exists in your project directory
+→ Try `pnpm linear:teams` to verify credentials work
+
+**Issue not found:**
+→ Verify the issue ID is correct (e.g., `POS-123`)
 
 ---
 
 ## Notes for LLMs
 
-- **All commands are non-interactive** - no prompts, just flags
-- **All parameters are optional except `--title`** for create command
-- **Multiple tags** can be added by repeating `--tag` flag
-- **Status and project names** are fuzzy-matched (case-insensitive)
-- **Assignee lookup** works with username, email, or display name
-- **All commands exit with code 1 on error** for easy error detection
+- All commands are **100% non-interactive** (no prompts)
+- Only `--title` is required for `create`
+- Status, project, and assignee names are **fuzzy-matched**
+- Multiple `--tag` flags can be used
+- Exit code 1 on errors
+- MCP tools mirror CLI functionality exactly
 
 ---
 
@@ -314,25 +259,18 @@ Common errors:
 ```bash
 # Setup
 cp .env.example .env
-# Add LINEAR_API_KEY to .env
-pnpm linear:teams
-# Add LINEAR_TEAM_ID to .env
+pnpm linear:teams  # Get team ID
+# Edit .env with LINEAR_API_KEY and LINEAR_TEAM_ID
 
-# Verify setup
-pnpm test
+# MCP Setup (once)
+claude mcp add --scope user --transport stdio linear -- /path/to/linear-api/start-mcp-server.sh
 
-# Create issue
+# CLI Commands
 pnpm linear:create --title "Title" [options]
-
-# List issues
+pnpm linear:update <id> [options]
 pnpm linear:list [--status "Status"] [--limit N]
-
-# Get issue
-pnpm linear:get POS-123
-
-# Delete issue
-pnpm linear:delete POS-123
-
-# List teams
+pnpm linear:get <id>
+pnpm linear:delete <id>
 pnpm linear:teams
+pnpm test  # Verify setup
 ```
